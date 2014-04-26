@@ -1,0 +1,172 @@
+Peer assessment - Getting and cleaning data
+========================================================
+
+The **purpose** of this project is to demonstrate your **ability to collect, work with, and clean a data set**. 
+The goal is to **prepare tidy data** that can be used for later analysis. You will be graded by your peers on a series of yes/no questions related to the project. 
+
+You will be required to submit: 
+1) a tidy data set as described below,
+2) a link to a Github repository with your script for performing the analysis, 
+and 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md. 
+
+You should also include a README.md in the repo with your scripts. This repo explains how all of the scripts work and how they are connected. 
+
+One of the most exciting areas in all of data science right now is wearable computing - see for example this article . Companies like Fitbit, Nike, and Jawbone Up are racing to develop the most advanced algorithms to attract new users. The data linked to from the course website represent data collected from the accelerometers from the Samsung Galaxy S smartphone. A full description is available at the site where the data was obtained:
+
+http://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones
+
+Here are the data for the project:
+
+https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip
+
+1. Downloading and extracting data
+-----------------------------------
+```{r}
+setwd("E:/Olivier/Getting and Cleaning Data/assessment")
+
+dir.create("./Data")
+
+fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
+setInternet2(use = TRUE)
+download.file(fileUrl,destfile="./Data/getdata_projectfiles_UCI HAR Dataset.zip")
+
+unzip("./Data/getdata_projectfiles_UCI HAR Dataset.zip",
+      exdir="./Data")
+
+date_download=date()
+date_download
+```
+2. Merging train and test data
+-----------------------------------
+**- Reading list of features**
+```{r}
+setwd("E:/Olivier/Getting and Cleaning Data/assessment")
+#Merging train and test data
+liste_features<-read.table("./Data/UCI HAR Dataset/features.txt",sep=" ")
+nfeatures<-nrow(liste_features)
+```
+**- Reading activity names**
+```{r}
+# List of activity names
+setwd("E:/Olivier/Getting and Cleaning Data/assessment")
+activity_names<-read.table("./Data/UCI HAR Dataset/activity_labels.txt")
+names(activity_names)<-c("activity_id","ACTIVITY_name")
+```
+**- Treatment of training data**
+```{r}
+setwd("E:/Olivier/Getting and Cleaning Data/assessment")
+# Treatment of training data
+list.files("./Data/UCI HAR Dataset/train")
+# Training data set
+train_set<-read.table("./Data/UCI HAR Dataset/train/X_train.txt")
+train_labels<-read.table("./Data/UCI HAR Dataset/train/Y_train.txt")
+train_subject<-read.table("./Data/UCI HAR Dataset/train/subject_train.txt")
+train_total_acc_x_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/total_acc_x_train.txt")
+train_total_acc_y_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/total_acc_y_train.txt")
+train_total_acc_z_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/total_acc_z_train.txt")
+train_body_acc_x_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_acc_x_train.txt")
+train_body_acc_y_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_acc_y_train.txt")
+train_body_acc_z_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_acc_z_train.txt")
+train_gyro_acc_x_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_gyro_x_train.txt")
+train_gyro_acc_y_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_gyro_y_train.txt")
+train_gyro_acc_z_train<-read.table("./Data/UCI HAR Dataset/train/Inertial Signals/body_gyro_z_train.txt")
+```
+**- Treatment of test data**
+```{r}
+setwd("E:/Olivier/Getting and Cleaning Data/assessment")
+# Treatment of test data
+list.files("./Data/UCI HAR Dataset/test")
+test_set<-read.table("./Data/UCI HAR Dataset/test/X_test.txt")
+test_labels<-read.table("./Data/UCI HAR Dataset/test/Y_test.txt")
+test_subject<-read.table("./Data/UCI HAR Dataset/test/subject_test.txt")
+test_total_acc_x_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/total_acc_x_test.txt")
+test_total_acc_y_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/total_acc_y_test.txt")
+test_total_acc_z_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/total_acc_z_test.txt")
+test_body_acc_x_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_acc_x_test.txt")
+test_body_acc_y_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_acc_y_test.txt")
+test_body_acc_z_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_acc_z_test.txt")
+test_body_gyro_x_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_gyro_x_test.txt")
+test_body_gyro_y_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_gyro_y_test.txt")
+test_body_gyro_z_train<-read.table("./Data/UCI HAR Dataset/test/Inertial Signals/body_gyro_z_test.txt")
+```
+**- adding subject and activity column to train/test set**
+```{r}
+# adding subject column to train/test set
+train_set$activity<-train_labels[,1]
+train_set$subject<-train_subject[,1]
+names(train_set$activity)<-"activity"
+names(train_set$subject)<-"subject"
+test_set$activity<-test_labels[,1]
+test_set$subject<-test_subject[,1]
+names(test_set$subject)<-"subject"
+```
+**- adding column names to the 2 data sets using feature list**
+```{r}
+# adding column names to the 2 data sets using feature list
+names(train_set)[1:nfeatures]<-as.character(liste_features[,2])
+names(test_set)[1:nfeatures]<-as.character(liste_features[,2])
+```
+**- Merging of the 2 data sets**
+```{r}
+# Merge the 2 data sets
+data_set<-rbind(train_set,test_set)
+```
+3. Extraction the measurements on the mean and standard deviation for each measurement. 
+---------------------------------------------------------------------------------------
+**- Conversion of names to upper case**
+```{r}
+# Conversion of names to upper case
+names(data_set)<-toupper(names(data_set))
+```
+**- Extraction of variable means and std**
+```{r}
+# Extraction of variable means and std.
+index_newnames<-grep("MEAN|STD",names(data_set))
+index_activity<-which(names(data_set)=="ACTIVITY")
+index_subject<-which(names(data_set)=="SUBJECT")
+newdata_set<-data_set[,c(index_newnames,index_activity,index_subject)]
+```
+4. Uses descriptive activity names to name the activities in the data set 
+-------------------------------------------------------------------------
+**- merging activity names table with data set**
+```{r}
+# merging activity names table with data set
+mergedData_set <- merge(newdata_set,activity_names,by.x="ACTIVITY",by.y="activity_id",all=TRUE)
+```
+5. Appropriately labels the data set with descriptive activity names
+-------------------------------------------------------------------------
+**- changing order of columns**
+```{r}
+# changing order of columns
+index_activity<-which(names(mergedData_set)=="ACTIVITY")
+index_activity_name<-which(names(mergedData_set)=="ACTIVITY_name")
+index_subject<-which(names(mergedData_set)=="SUBJECT")
+mergedData_set <- mergedData_set[c(2:87,index_subject,index_activity,index_activity_name)]
+names(mergedData_set)
+```
+6. Creates a second, independent tidy data set with the average of each variable for each activity and each subject. 
+--------------------------------------------------------------------------------------------------------------------
+**- Averaging variables by activity and subject**
+```{r}
+class(mergedData_set$ACTIVITY_name)
+class(mergedData_set$SUBJECT)
+# Splitting of the dataframe with Activity name and subject
+s<-split(mergedData_set[,1:86],list(mergedData_set$ACTIVITY_name,mergedData_set$SUBJECT),drop=TRUE)
+# sapply to the resulting list and converison to dataframe
+AVEmergedData_set<-as.data.frame(sapply(s,function(x) colMeans(x[,1:86],na.rm=TRUE)))
+tAVEmergedData_set<-t(AVEmergedData_set)
+tAVEmergedData_set<-as.data.frame(tAVEmergedData_set)
+# reformatting of subject and actvity name in the dataframe based on row names
+ACT_SUB<-strsplit(rownames(tAVEmergedData_set),"\\.")
+SUBJECT<-NULL
+for (i in 1:length(ACT_SUB)) {
+  SUBJECT[i]<-as.numeric(ACT_SUB[[i]][2])
+}
+ACTIVITY_name<-NULL
+for (i in 1:length(ACT_SUB)) {
+  ACTIVITY_name[i]<-ACT_SUB[[i]][1]
+}
+tAVEmergedData_set$SUBJECT<-SUBJECT
+tAVEmergedData_set$ACTIVITY_name<-ACTIVITY_name
+head(tAVEmergedData_set)
+```
