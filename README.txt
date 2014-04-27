@@ -3,8 +3,11 @@ In the repos, could be find :
 - All the diffrents steps used to produce this data frame are described in the run_analysis.html produced by knitr. I also added the md intermediate file : CodeBook.md.
 The best for reading is using knitr to produce the html file.
 
+Output dataframes :
+- First one : mergedData_set
+- Second one : tAVEmergedData_set
 
-I got problem with the setwd. I hope you'll be able to execute the R code quite easily.
+I got problems with the setwd. I hope you'll be able to execute the R code quite easily.
 
 Hope this help
 
