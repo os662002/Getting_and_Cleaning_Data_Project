@@ -1,3 +1,10 @@
+####################################################################
+# Project: Getting and Cleaning Data
+# Date: 2014/04/26
+# Author: Olivier Sanchez
+# Built in R Version: 3.0.2
+####################################################################
+
 # Downloading and extracting data
 
 setwd("E:/Olivier/Getting and Cleaning Data/assessment")
@@ -100,5 +107,6 @@ for (i in 1:length(ACT_SUB)) {
 }
 tAVEmergedData_set$SUBJECT<-SUBJECT
 tAVEmergedData_set$ACTIVITY_name<-ACTIVITY_name
+head(tAVEmergedData_set)
 write.table(tAVEmergedData_set,file="tidy_data_set.txt",sep=",")
 
